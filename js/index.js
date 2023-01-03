@@ -1,14 +1,14 @@
 // 自定义抽签弹窗组件
 const CustomLuckyDrawDrawer = {
   data () {
-    return {
-      // 显示状态
-      visible: false,
-      // 自定义列表
-      customs: []
-    }
-  },
-  template: `
+        return {
+            // 显示状态
+            visible: false,
+            // 自定义列表
+            customs: []
+        }
+    },
+    template: `
     <a-drawer
       title="自定义抽签项目"
       width="380px"
@@ -56,51 +56,51 @@ const CustomLuckyDrawDrawer = {
       </a-button>
     </a-drawer>
   `,
-  methods: {
-    // 显示抽屉
+    methods: {
+        // 显示抽屉
     showDrawer () {
-      // 获取自定义列表
-      this.customs = JSON.parse(localStorage.getItem('customs')) || []
-      // 显示
-      this.visible = true
-    },
-    // 关闭抽屉
+            // 获取自定义列表
+            this.customs = JSON.parse(localStorage.getItem('customs')) || []
+            // 显示
+            this.visible = true
+        },
+        // 关闭抽屉
     onClose () {
-      // 过滤空名称项目
-      const customs = this.customs.filter(item => {
-        return !!item.name
-      })
-      // 转成 json
-      const jsonString = JSON.stringify(customs)
-      // 存储到 localStorage
-      localStorage.setItem('customs', jsonString)
-      // 关闭窗口
-      this.visible = false
-      // 回调
-      this.$emit('close')
-    },
-    // 新增
+            // 过滤空名称项目
+            const customs = this.customs.filter(item => {
+                return !!item.name
+            })
+            // 转成 json
+            const jsonString = JSON.stringify(customs)
+            // 存储到 localStorage
+            localStorage.setItem('customs', jsonString)
+            // 关闭窗口
+            this.visible = false
+            // 回调
+            this.$emit('close')
+        },
+        // 新增
     touchAdd () {
-      const custom = {
-        name: undefined,
-        tag: undefined
-      }
-      this.customs.push(custom)
-    },
-    // 删除
+            const custom = {
+                name: undefined,
+                tag: undefined
+            }
+            this.customs.push(custom)
+        },
+        // 删除
     touchDelete (index) {
-      this.customs.splice(index, 1)
+            this.customs.splice(index, 1)
+        }
     }
-  }
 }
 
 // 主视图
 new Vue({
-  el: '#app',
-  components: {
-    CustomLuckyDrawDrawer
-  },
-  template: `
+    el: '#app',
+    components: {
+        CustomLuckyDrawDrawer
+    },
+    template: `
     <div class="import-view">
 
     <!-- 标题 Lucky Draw-->
@@ -265,236 +265,241 @@ new Vue({
 
   `,
   data () {
-    return {
-      // 0 默认抽签模式，1 自定义抽签模式
-      modeType: 0,
-      // 0 允许重复抽签，1 不允许重复抽签
-      modeDuplicate: 0,
-      // 上传文件列表
-      fileList: [],
-      // 上传状态
-      isLoading: false,
-      // 用户列表
-      users: [],
-      // 是否导入了用户列表
-      isImportUsers: false,
-      // 是否有自定义奖项配置
-      isImportMode: false,
-      // 自定义标题
-      isTitle: undefined,
-      // 背景图片
-      bgImageSrc: undefined,
-      bgImageNumber: 9,
-      bgImageDir: ["image/background/picture/BG-", "image/background/color/BG-"],
-      bgImageFile: ["random", "01", "02", "03", "04", "05", "06", "07", "08", "09"],
-      bgImageIndex: 0,
-      isColor: 0,
-    }
-  },
+        return {
+            // 0 默认抽签模式，1 自定义抽签模式
+            modeType: 0,
+            // 0 允许重复抽签，1 不允许重复抽签
+            modeDuplicate: 0,
+            // 上传文件列表
+            fileList: [],
+            // 上传状态
+            isLoading: false,
+            // 用户列表
+            users: [],
+            // 是否导入了用户列表
+            isImportUsers: false,
+            // 是否有自定义奖项配置
+            isImportMode: false,
+            // 自定义标题
+            isTitle: undefined,
+            // 背景图片
+            bgImageSrc: undefined,
+            bgImageNumber: 9,
+            bgImageDir: ["image/background/picture/BG-", "image/background/color/BG-"],
+            bgImageFile: ["random", "01", "02", "03", "04", "05", "06", "07", "08", "09"],
+            bgImageIndex: 0,
+            isColor: 0,
+        }
+    },
   created () {
-    // 获取抽签模式
-    const modeType = localStorage.getItem('modeType')
-    if (modeType) {
-      this.modeType = Number(modeType)
-    } else {
-      this.modeType = 0
-    }
-    // 获取抽签模式
-    const modeDuplicate = localStorage.getItem('modeDuplicate')
-    if (modeDuplicate) {
-      this.modeDuplicate = Number(modeDuplicate)
-    } else {
-      this.modeDuplicate = 0
-    }
-
-    // 获取标题
-    const isTitle = localStorage.getItem('isTitle')
-    if (isTitle) {
-      this.isTitle = isTitle
-    } else {
-      this.isTitle = undefined
-    }
-
-    // 获取背景图片
-    const isColor = localStorage.getItem('isColor')
-    if (isColor) {
-        this.isColor = Number(isColor)
-    } else {
-      this.isColor = 0
-    }
-
-    const isbgImage = localStorage.getItem('isbgImage')
-    if (isbgImage) {
-      if(isbgImage < 0 || isbgImage > this.bgImageNumber) {
-        this.bgImageIndex = 0
-        localStorage.setItem('isbgImage', this.bgImageIndex)
-      } else {
-        this.bgImageIndex = isbgImage
-        localStorage.setItem('isbgImage', this.bgImageIndex)
-      }
-    } else {
-      this.bgImageIndex = 0
-    }
-    this.bgImageSrc = this.bgImageDir[this.isColor] + this.bgImageFile[this.bgImageIndex] + ".png"
-
-    // 获取抽签用户
-    const users = localStorage.getItem('users')
-    this.isImportUsers = users ? JSON.parse(users).length : false
-    // 获取自定义抽签项
-    this.onCloseCustom()
-  },
-  methods: {
-    // 更改选择背景图片
-    selectImage (e) {
-      var bgPhoto = document.getElementById("bg_Image");
-      if (e == 0 && this.bgImageIndex < (this.bgImageNumber)) {
-        this.bgImageIndex = parseInt(this.bgImageIndex) + 1
-        this.bgImageSrc = this.bgImageDir[this.isColor] + this.bgImageFile[this.bgImageIndex] + ".png"
-        bgPhoto.src = this.bgImageSrc
-        localStorage.setItem('isbgImage', this.bgImageIndex)
-      }
-      if (e == 1 && this.bgImageIndex > 0) {
-        this.bgImageIndex = parseInt(this.bgImageIndex) - 1
-        this.bgImageSrc = this.bgImageDir[this.isColor] + this.bgImageFile[this.bgImageIndex] + ".png"
-        bgPhoto.src = this.bgImageSrc
-        localStorage.setItem('isbgImage', this.bgImageIndex)
-      }
-    },
-    // 跳转
-    touchLuckyDrawPage () {
-      window.location.href = './lucky-draw.html'
-    },
-    // 抽签模式切换
-    handleImportModeChange (e) {
-      // 存储到 localStorage
-      localStorage.setItem('modeType', e)
-    },
-    // 重复模式切换
-    handleDuplicateModeChange (e) {
-      // 存储到 localStorage
-      localStorage.setItem('modeDuplicate', e)
-    },
-    // 背景模式切换
-    handlebgModeChange (e) {
-      // 存储到 localStorage
-      localStorage.setItem('isColor', this.isColor)
-      this.bgImageSrc = this.bgImageDir[this.isColor] + this.bgImageFile[0] + ".png"
-      this.bgImageIndex = 0
-      localStorage.setItem('isbgImage', this.bgImageIndex)
-    },
-    // 保存标题
-    handleTitleChange () {
-      // 存储到 localStorage
-      localStorage.setItem('isTitle', this.isTitle)
-    },
-    // 自定义抽签组件
-    touchCustom () {
-      this.$refs["custom-lucky-draw-drawer"].showDrawer()
-    },
-    // 关闭自定义抽签窗口
-    onCloseCustom () {
-      const customs = localStorage.getItem('customs')
-      this.isImportMode = customs ? JSON.parse(customs).length : false
-    },
-    // 清空数据
-    clearData () {
-      // 清空数据
-      localStorage.clear()
-      // 清空状态
-      this.isImportUsers = false
-      this.isImportMode = false
-      this.modeType = 0
-      this.modeDuplicate = 0
-      this.isTitle = undefined
-      this.bgImageIndex = 0
-      this.bgImageSrc = "CSS/BG/BG-random.png"
-      // 提示
-      this.$message.success('清理成功')
-    },
-    // 上传之前检查
-    beforeUpload (file, fileList) {
-      return true
-    },
-    // 自定义上传清单
-    customRequest (data) {
-      // 数据记录
-      this.users = []
-      // 进入加载
-      this.isLoading = true
-      // 开始解析数据
-      formJson(data.file, (code, sheets) => {
-        // 解析成功且有数据
-        if (code === 0) {
-          // 解析数据
-          sheets.forEach(sheet => {
-            // 单个 sheet
-            sheet.list.forEach(row => {
-              // 单行
-              row.forEach(item => {
-                // 每个单元格，解析成 user 对象存入数组
-                if (item.length) {
-                  const user = this.userJson(item)
-                  this.users.push(user)
-                }
-              })
-            })
-          })
-          // 解析成 JSON 字符串
-          const jsonString = JSON.stringify(this.users)
-          // 存储到 localStorage
-          localStorage.setItem('users', jsonString)
-          // 标记为有数据
-          this.isImportUsers = this.users.length
-          // 清单是否为空
-          if (this.users.length) {
-            // 清单有值
-            this.$message.success('上传清单成功')
-          } else {
-            // 清单为空
-            this.$message.error('上传清单是空的，请检查！')
-          }
-          // 结束加载
-          this.isLoading = false
+        // 获取抽签模式
+        const modeType = localStorage.getItem('modeType')
+        if (modeType) {
+            this.modeType = Number(modeType)
         } else {
-          // 结束加载
-          this.isLoading = false
-          this.$message.success('上传清单失败')
+            this.modeType = 0
         }
-      })
+        // 获取抽签模式
+        const modeDuplicate = localStorage.getItem('modeDuplicate')
+        if (modeDuplicate) {
+            this.modeDuplicate = Number(modeDuplicate)
+        } else {
+            this.modeDuplicate = 0
+        }
+
+        // 获取标题
+        const isTitle = localStorage.getItem('isTitle')
+        if (isTitle) {
+            this.isTitle = isTitle
+        } else {
+            this.isTitle = undefined
+        }
+
+        // 获取背景图片
+        const isColor = localStorage.getItem('isColor')
+        if (isColor) {
+            this.isColor = Number(isColor)
+        } else {
+            this.isColor = 0
+        }
+
+        const isbgImage = localStorage.getItem('isbgImage')
+        if (isbgImage) {
+      if(isbgImage < 0 || isbgImage > this.bgImageNumber) {
+                this.bgImageIndex = 0
+                localStorage.setItem('isbgImage', this.bgImageIndex)
+            } else {
+                this.bgImageIndex = isbgImage
+                localStorage.setItem('isbgImage', this.bgImageIndex)
+            }
+        } else {
+            this.bgImageIndex = 0
+        }
+        this.bgImageSrc = this.bgImageDir[this.isColor] + this.bgImageFile[this.bgImageIndex] + ".png"
+
+        // 获取抽签用户
+        let users = localStorage.getItem('users')
+        // 默认数据存储到 localStorage
+        if (users == null) {
+            localStorage.setItem('users', '[{"id":0,"name":"1","department":"","number":""},{"id":1,"name":"2","department":"","number":""},{"id":2,"name":"3","department":"","number":""},{"id":3,"name":"4","department":"","number":""},{"id":4,"name":"5","department":"","number":""},{"id":5,"name":"6","department":"","number":""},{"id":6,"name":"7","department":"","number":""},{"id":7,"name":"8","department":"","number":""},{"id":8,"name":"9","department":"","number":""},{"id":9,"name":"10","department":"","number":""},{"id":10,"name":"11","department":"","number":""},{"id":11,"name":"12","department":"","number":""},{"id":12,"name":"13","department":"","number":""},{"id":13,"name":"14","department":"","number":""},{"id":14,"name":"15","department":"","number":""},{"id":15,"name":"16","department":"","number":""},{"id":16,"name":"17","department":"","number":""},{"id":17,"name":"18","department":"","number":""},{"id":18,"name":"19","department":"","number":""},{"id":19,"name":"20","department":"","number":""},{"id":20,"name":"21","department":"","number":""},{"id":21,"name":"22","department":"","number":""},{"id":22,"name":"23","department":"","number":""},{"id":23,"name":"24","department":"","number":""},{"id":24,"name":"25","department":"","number":""},{"id":25,"name":"26","department":"","number":""},{"id":26,"name":"27","department":"","number":""},{"id":27,"name":"28","department":"","number":""},{"id":28,"name":"29","department":"","number":""},{"id":29,"name":"30","department":"","number":""},{"id":30,"name":"31","department":"","number":""},{"id":31,"name":"32","department":"","number":""},{"id":32,"name":"33","department":"","number":""},{"id":33,"name":"34","department":"","number":""},{"id":34,"name":"35","department":"","number":""},{"id":35,"name":"36","department":"","number":""},{"id":36,"name":"37","department":"","number":""},{"id":37,"name":"38","department":"","number":""},{"id":38,"name":"39","department":"","number":""},{"id":39,"name":"40","department":"","number":""},{"id":40,"name":"41","department":"","number":""},{"id":41,"name":"42","department":"","number":""},{"id":42,"name":"43","department":"","number":""},{"id":43,"name":"44","department":"","number":""},{"id":44,"name":"45","department":"","number":""},{"id":45,"name":"46","department":"","number":""},{"id":46,"name":"47","department":"","number":""},{"id":47,"name":"48","department":"","number":""},{"id":48,"name":"49","department":"","number":""},{"id":49,"name":"50","department":"","number":""}]')
+            users = localStorage.getItem('users')
+        }
+        this.isImportUsers = users ? JSON.parse(users).length : false
+        // 获取自定义抽签项
+        this.onCloseCustom()
     },
-    // 获取单个用户数据，传入单元格字段
+    methods: {
+        // 更改选择背景图片
+    selectImage (e) {
+            var bgPhoto = document.getElementById("bg_Image");
+            if (e == 0 && this.bgImageIndex < (this.bgImageNumber)) {
+                this.bgImageIndex = parseInt(this.bgImageIndex) + 1
+                this.bgImageSrc = this.bgImageDir[this.isColor] + this.bgImageFile[this.bgImageIndex] + ".png"
+                bgPhoto.src = this.bgImageSrc
+                localStorage.setItem('isbgImage', this.bgImageIndex)
+            }
+            if (e == 1 && this.bgImageIndex > 0) {
+                this.bgImageIndex = parseInt(this.bgImageIndex) - 1
+                this.bgImageSrc = this.bgImageDir[this.isColor] + this.bgImageFile[this.bgImageIndex] + ".png"
+                bgPhoto.src = this.bgImageSrc
+                localStorage.setItem('isbgImage', this.bgImageIndex)
+            }
+        },
+        // 跳转
+    touchLuckyDrawPage () {
+            window.location.href = './lucky-draw.html'
+        },
+        // 抽签模式切换
+    handleImportModeChange (e) {
+            // 存储到 localStorage
+            localStorage.setItem('modeType', e)
+        },
+        // 重复模式切换
+    handleDuplicateModeChange (e) {
+            // 存储到 localStorage
+            localStorage.setItem('modeDuplicate', e)
+        },
+        // 背景模式切换
+    handlebgModeChange (e) {
+            // 存储到 localStorage
+            localStorage.setItem('isColor', this.isColor)
+            this.bgImageSrc = this.bgImageDir[this.isColor] + this.bgImageFile[0] + ".png"
+            this.bgImageIndex = 0
+            localStorage.setItem('isbgImage', this.bgImageIndex)
+        },
+        // 保存标题
+    handleTitleChange () {
+            // 存储到 localStorage
+            localStorage.setItem('isTitle', this.isTitle)
+        },
+        // 自定义抽签组件
+    touchCustom () {
+            this.$refs["custom-lucky-draw-drawer"].showDrawer()
+        },
+        // 关闭自定义抽签窗口
+    onCloseCustom () {
+            const customs = localStorage.getItem('customs')
+            this.isImportMode = customs ? JSON.parse(customs).length : false
+        },
+        // 清空数据
+    clearData () {
+            // 清空数据
+            localStorage.clear()
+            // 清空状态
+            this.isImportUsers = false
+            this.isImportMode = false
+            this.modeType = 0
+            this.modeDuplicate = 0
+            this.isTitle = undefined
+            this.bgImageIndex = 0
+            this.bgImageSrc = "CSS/BG/BG-random.png"
+            // 提示
+            this.$message.success('清理成功')
+        },
+        // 上传之前检查
+    beforeUpload (file, fileList) {
+            return true
+        },
+        // 自定义上传清单
+    customRequest (data) {
+            // 数据记录
+            this.users = []
+            // 进入加载
+            this.isLoading = true
+            // 开始解析数据
+            formJson(data.file, (code, sheets) => {
+                // 解析成功且有数据
+                if (code === 0) {
+                    // 解析数据
+                    sheets.forEach(sheet => {
+                        // 单个 sheet
+                        sheet.list.forEach(row => {
+                            // 单行
+                            row.forEach(item => {
+                                // 每个单元格，解析成 user 对象存入数组
+                                if (item.length) {
+                                    const user = this.userJson(item)
+                                    this.users.push(user)
+                                }
+                            })
+                        })
+                    })
+                    // 解析成 JSON 字符串
+                    const jsonString = JSON.stringify(this.users)
+                    // 存储到 localStorage
+                    localStorage.setItem('users', jsonString)
+                    // 标记为有数据
+                    this.isImportUsers = this.users.length
+                    // 清单是否为空
+                    if (this.users.length) {
+                        // 清单有值
+                        this.$message.success('上传清单成功')
+                    } else {
+                        // 清单为空
+                        this.$message.error('上传清单是空的，请检查！')
+                    }
+                    // 结束加载
+                    this.isLoading = false
+                } else {
+                    // 结束加载
+                    this.isLoading = false
+                    this.$message.success('上传清单失败')
+                }
+            })
+        },
+        // 获取单个用户数据，传入单元格字段
     userJson (item) {
-      // 分割字符串
-      const items = item.split('-')
-      // 如果有3个字段
-      if (items.length >= 3) {
-        return {
-          id: this.users.length,
-          name: items[0],
-          department: items[1],
-          number: items[2]
+            // 分割字符串
+            const items = item.split('-')
+            // 如果有3个字段
+            if (items.length >= 3) {
+                return {
+                    id: this.users.length,
+                    name: items[0],
+                    department: items[1],
+                    number: items[2]
+                }
+            }
+            // 如果有2个字段
+            if (items.length >= 2) {
+                // 判断第二个是否为数字
+                const isNumber = !isNaN(items[1])
+                return {
+                    id: this.users.length,
+                    name: items[0],
+                    department: isNumber ? '' : items[1],
+                    number: isNumber ? items[1] : 0
+                }
+            }
+            // 如果有1个字段
+            if (items.length >= 1) {
+                return {
+                    id: this.users.length,
+                    name: items[0],
+                    department: '',
+                    number: 0
+                }
+            }
         }
-      }
-      // 如果有2个字段
-      if (items.length >= 2) {
-        // 判断第二个是否为数字
-        const isNumber = !isNaN(items[1])
-        return {
-          id: this.users.length,
-          name: items[0],
-          department: isNumber ? '' : items[1],
-          number: isNumber ? items[1] : 0
-        }
-      }
-      // 如果有1个字段
-      if (items.length >= 1) {
-        return {
-          id: this.users.length,
-          name: items[0],
-          department: '',
-          number: 0
-        }
-      }
     }
-  }
 })
